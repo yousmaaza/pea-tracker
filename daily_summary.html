@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .summary-box { background-color: #ecf0f1; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0; }
+        .signal-card { border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .buy-signal { border-left: 4px solid #27ae60; background-color: #f0fff4; }
+        .sell-signal { border-left: 4px solid #e74c3c; background-color: #fff5f5; }
+        .watch-signal { border-left: 4px solid #f39c12; background-color: #fffbf0; }
+        .neutral-signal { border-left: 4px solid #95a5a6; background-color: #f8f9fa; }
+        .confidence-high { color: #27ae60; font-weight: bold; }
+        .confidence-medium { color: #f39c12; font-weight: bold; }
+        .confidence-low { color: #e74c3c; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #3498db; color: white; }
+        .indicator-value { font-family: 'Courier New', monospace; font-weight: bold; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd; font-size: 0.9em; color: #7f8c8d; }
+        .disclaimer { background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>📊 Market Watcher PEA - Daily Analysis Report</h1>
+    <p><strong>Analysis Date:</strong> Tuesday, January 7, 2026 at 21:57 CET</p>
+
+    <div class="summary-box">
+        <h2>📈 Executive Summary</h2>
+        <ul>
+            <li><strong>Tickers Analyzed:</strong> 11 PEA-eligible securities</li>
+            <li><strong>Signals Generated:</strong> 1 (ESE.PA)</li>
+            <li><strong>High-Confidence Signals (≥60):</strong> 0</li>
+            <li><strong>Status:</strong> No actionable alerts today</li>
+        </ul>
+        <p><strong>Market Condition:</strong> All monitored securities are in neutral or low-confidence zones. No immediate action required.</p>
+    </div>
+
+    <h2>🔍 Detailed Analysis</h2>
+
+    <div class="signal-card buy-signal">
+        <h3>🟢 ESE.PA - BNP PARIBAS EASY S&P 500 UCITS ETF EUR CAPITALISATION</h3>
+        <p><strong>Signal:</strong> BUY | <span class="confidence-low">Confidence: 45/100</span></p>
+        <p><strong>Current Price:</strong> 30.00 EUR (+1.66% vs MA20)</p>
+
+        <h4>Technical Indicators</h4>
+        <table>
+            <tr>
+                <th>Indicator</th>
+                <th>Value</th>
+                <th>Interpretation</th>
+            </tr>
+            <tr>
+                <td>RSI (14)</td>
+                <td class="indicator-value">69.70</td>
+                <td>⚠️ Approaching overbought zone</td>
+            </tr>
+            <tr>
+                <td>MACD</td>
+                <td class="indicator-value">0.1680</td>
+                <td>✅ Bullish crossover detected</td>
+            </tr>
+            <tr>
+                <td>MA20</td>
+                <td class="indicator-value">29.51 EUR</td>
+                <td>✅ Price above MA20 (+1.66%)</td>
+            </tr>
+            <tr>
+                <td>MA50</td>
+                <td class="indicator-value">29.28 EUR</td>
+                <td>✅ Price above MA50 (+2.46%)</td>
+            </tr>
+            <tr>
+                <td>MA200</td>
+                <td class="indicator-value">29.28 EUR</td>
+                <td>✅ Long-term uptrend confirmed</td>
+            </tr>
+        </table>
+
+        <h4>Key Points</h4>
+        <ul>
+            <li>Bullish MACD crossover indicates positive momentum</li>
+            <li>Price above all major moving averages (MA20/50/200)</li>
+            <li>RSI at 69.7 suggests potential for profit-taking soon</li>
+        </ul>
+
+        <h4>Risk Factors</h4>
+        <ul>
+            <li>RSI approaching overbought territory (70+)</li>
+            <li>Limited upside potential in short term</li>
+            <li>Monitor for reversal signals</li>
+        </ul>
+
+        <h4>Recommendation</h4>
+        <p><strong>Action:</strong> WATCH - Signal confidence too low for immediate action. Wait for clearer entry point or RSI pullback below 60.</p>
+    </div>
+
+    <h2>📊 Watchlist Status</h2>
+    <p>All other tickers (10) showed neutral technical patterns with no actionable signals:</p>
+    <ul>
+        <li>CW8D.PA - AMUNDI MSCI WORLD SWAP UCITS ETF EUR DIST</li>
+        <li>CS6.PA - AMUNDI STOXX EUROPE 600 BANKS UCITS ETF ACC</li>
+        <li>PUST.PA - AMUNDI PEA US TECH SCREENED UCITS ETF</li>
+        <li>CEMU.PA - ISHARES CORE MSCI EMU UCITS ETF</li>
+        <li>PAASI.PA - AMUNDI PEA ASIE EMERGENTE ETF</li>
+        <li>CW8.PA - AMUNDI MSCI WORLD SWAP UCITS ETF EUR ACC</li>
+        <li>PSP5.PA - AMUNDI PEA S&P 500 SCREENED UCITS ETF</li>
+        <li>PCEU.PA - BNP PARIBAS EASY STOXX EUROPE 600 UCITS ETF</li>
+        <li>WPEA.PA - AMUNDI PEA MONDE MSCI WORLD UCITS ETF ACC</li>
+        <li>PJPN.PA - AMUNDI PEA JAPON (TOPIX) UCITS ETF EUR ACC</li>
+    </ul>
+
+    <h2>📅 Next Analysis</h2>
+    <p>The next Market Watcher analysis will run on <strong>Wednesday, January 8, 2026 at 08:00 CET</strong> (before market opening).</p>
+
+    <div class="disclaimer">
+        <h3>⚠️ DISCLAIMER</h3>
+        <p><strong>This analysis is provided for informational purposes only and does not constitute investment advice.</strong> All investment decisions remain your sole responsibility. Past performance does not guarantee future results. Markets are subject to volatility and risk. Always conduct your own research and consider consulting a licensed financial advisor before making investment decisions.</p>
+    </div>
+
+    <div class="footer">
+        <p><strong>Market Watcher PEA</strong> - Powered by Claude AI & Model Context Protocol</p>
+        <p>Data Sources: Yahoo Finance | Analysis Engine: Technical Indicators (RSI, MACD, Moving Averages)</p>
+        <p>This report was automatically generated by Market Watcher PEA on January 7, 2026.</p>
+    </div>
+</body>
+</html>

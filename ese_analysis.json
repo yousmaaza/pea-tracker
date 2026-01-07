@@ -1,0 +1,27 @@
+{
+  "ticker": "ESE.PA",
+  "company_name": "BNP PARIBAS EASY S&P 500 UCITS ETF EUR CAPITALISATION",
+  "analysis_date": "2026-01-07T22:00:49.662526",
+  "current_price": 30.003,
+  "signal": "BUY",
+  "confidence": 45,
+  "indicators": {
+    "rsi": 69.7,
+    "macd": 0.168,
+    "macd_signal": 0.1429,
+    "macd_histogram": 0.0251,
+    "ma20": 29.5145,
+    "ma50": 29.2831,
+    "ma200": 29.2831
+  },
+  "price_position": {
+    "vs_ma20": 1.66,
+    "vs_ma50": 2.46,
+    "vs_ma200": 2.46
+  },
+  "reasons": [
+    "RSI at 69.7 approaching overbought",
+    "Bullish MACD crossover",
+    "Price above MA200 (29.28)"
+  ]
+}

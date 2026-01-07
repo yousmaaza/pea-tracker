@@ -1,0 +1,7 @@
+Peux tu modifier dans l'agent watcher pour qu'il puisse lire depuis Google Drive  le dossier PEA-tracker qui est composer des dossiers:
+Imports/  -> contient les fichiers importés depuis mon compte PEA Boursorama. Il y aura un fichiers qui sera recuperer a chaque fois quje ferai une nouvelle transaction
+Reports/  -> dossier ou il faudra que l'agent ecrit ses rapports de suivi pour chaque mois et aussi pour la recommadation d'achat ou de vente par indicateurs de suivi
+PEA_Watchlist_Indicateurs.xlsx -> fichier excel qui contient les indicateurs de suivi pour chaque action presente dans le PEA. L'agent devra lire ce fichier pour faire ses analyses et recommandations.
+
+Je veux mettre a jour le fichier @prompts/market-analysis et @prompts/portfolio-review pour qu'ils prennent en compte ces nouveaux elements.
+
