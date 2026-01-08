@@ -1,367 +1,442 @@
 # PEA Tracker - Suivi Intelligent de Portefeuille
 
-Plateforme intelligente de gestion de portefeuille PEA composée de deux agents IA autonomes qui collaborent pour optimiser les décisions d'investissement.
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/yousmaaza/pea-tracker)
+[![Architecture](https://img.shields.io/badge/architecture-MCP--native-green.svg)](https://modelcontextprotocol.io/)
+[![Agent](https://img.shields.io/badge/Market%20Watcher-✅%20Opérationnel-brightgreen.svg)](.claude/agents/market-watcher-pea.md)
 
-## Démarrage rapide
+Plateforme intelligente de gestion de portefeuille PEA utilisant des agents IA autonomes Claude pour optimiser les décisions d'investissement sur les marchés européens.
 
-1. **Lire la documentation complète** : [CLAUDE.md](./CLAUDE.md)
-2. **Configurer l'environnement** : Copier `config/.env.example` vers `config/.env`
-3. **Suivre la roadmap** : Phase 1 - Setup Infrastructure
-4. **Consulter les specs des agents** :
-   - [Market Watcher](./docs/agents/market-watcher-spec.md)
-   - [Portfolio Advisor](./docs/agents/portfolio-advisor-spec.md)
+## 🚀 Démarrage rapide
 
-## Vue d'ensemble
+```bash
+# 1. Cloner le projet
+git clone https://github.com/yousmaaza/pea-tracker.git
+cd pea-tracker
 
-### Les deux agents IA
+# 2. Installer Claude Code
+npm install -g @anthropic-ai/claude-code
 
-**🔍 Market Watcher** - Surveillance des marchés
-- Analyse temps réel des indicateurs techniques
-- Génération d'alertes d'opportunités (achat/vente)
-- Scoring de fiabilité des signaux
-- Fréquence : Quotidien à 8h
+# 3. Configurer l'API Claude
+export ANTHROPIC_API_KEY="your-api-key"
 
-**📊 Portfolio Advisor** - Analyse de portefeuille
-- Calcul de performance mensuelle
-- Analyse d'allocation et diversification
-- Recommandations stratégiques personnalisées
-- Fréquence : Mensuel (1er du mois)
+# 4. Lancer le Market Watcher
+claude-code agent run market-watcher-pea
+```
 
-## Architecture
+📖 **Documentation complète** : [CLAUDE.md](./CLAUDE.md)
+
+## ✨ Fonctionnalités
+
+### 🔍 Market Watcher PEA (✅ Opérationnel)
+
+Agent IA autonome pour la surveillance quotidienne des marchés :
+
+- ✅ Surveillance automatique de votre watchlist
+- ✅ Calcul d'indicateurs techniques (RSI, MACD, MA)
+- ✅ Génération de signaux BUY/SELL/WATCH avec scoring de confiance
+- ✅ Rapports détaillés sauvegardés sur Google Drive
+- ✅ Alertes email automatiques (score ≥ 60)
+
+**Fréquence** : Quotidienne à 8h (automatisable via cron)
+
+### 📊 Portfolio Advisor (🔜 À venir)
+
+Agent IA pour l'analyse mensuelle du portefeuille :
+
+- Calcul de performance globale et par ligne
+- Analyse d'allocation sectorielle et géographique
+- Recommandations de rééquilibrage
+- Rapports mensuels détaillés
+
+**Fréquence** : Mensuelle (1er du mois)
+
+## 🏗️ Architecture
+
+### Philosophie MCP-native
+
+Architecture moderne sans infrastructure intermédiaire :
 
 ```
-Boursorama → Export Excel → Google Drive → n8n → Claude API → Gmail
+Boursorama → Export Excel → Google Drive ←→ Claude Agent (MCP) → Gmail
 ```
+
+**Avantages** :
+- ✅ Pas de serveur à maintenir
+- ✅ Coûts réduits (5-20€/mois uniquement API Claude)
+- ✅ Configuration minimale
+- ✅ Fiabilité accrue
 
 ### Stack technique
 
-- **Stockage** : Google Drive + Google Sheets
-- **Orchestration** : n8n (workflows automatisés)
-- **Intelligence** : Claude API (Anthropic)
-- **Données** : Yahoo Finance API
-- **Notifications** : Gmail
+**Environnement d'exécution**
+- **Claude Code** : CLI pour exécuter les agents IA
+- **Agents personnalisés** : Définis dans `.claude/agents/`
+- **Exécution** : Manuelle via CLI ou automatisée via cron
 
-## Structure du projet
+**Serveurs MCP configurés**
+- `@modelcontextprotocol/server-google-drive` : Accès Google Drive/Sheets
+- `@modelcontextprotocol/server-gmail` : Envoi d'emails
+- `mcp-server-yfinance` : Données boursières Yahoo Finance
+- `@modelcontextprotocol/server-github` : Gestion du code source
+- `@modelcontextprotocol/server-filesystem` : Accès système de fichiers
+
+**Données et stockage**
+- **Google Drive** : Stockage des exports, historiques et rapports
+- **Yahoo Finance** : Données boursières en temps réel (gratuit)
+- **Gmail** : Notifications et alertes
+
+## 📁 Structure du projet
 
 ```
 pea-tracker/
-├── CLAUDE.md                 # Documentation complète du projet
-├── README.md                 # Ce fichier
-├── .gitignore
+├── .claude/
+│   ├── agents/
+│   │   └── market-watcher-pea.md         # ✅ Agent Market Watcher
+│   └── settings.local.json                # Configuration MCP (non versionné)
 │
-├── docs/                     # Documentation
-│   ├── agents/              # Spécifications des agents
-│   │   ├── market-watcher-spec.md
-│   │   └── portfolio-advisor-spec.md
-│   ├── workflows/           # Documentation workflows n8n
-│   └── api/                 # Documentation APIs
+├── docs/
+│   ├── agents/
+│   │   ├── market-watcher-spec.md         # Spécifications Market Watcher
+│   │   └── portfolio-advisor-spec.md      # Spécifications Portfolio Advisor
+│   ├── architecture/
+│   │   └── mcp-integration.md             # Documentation architecture MCP
+│   ├── mcp/
+│   │   └── yahoo-finance-integration.md   # Guide Yahoo Finance MCP
+│   ├── ARCHITECTURE_DECISION.md           # Décisions architecture
+│   └── SETUP_GUIDE.md                     # Guide d'installation détaillé
 │
-├── n8n/                     # Workflows n8n
-│   ├── README.md           # Guide n8n
-│   ├── portfolio-sync/
-│   ├── market-watcher/
-│   └── portfolio-advisor/
+├── prompts/
+│   ├── market-analysis.md                 # Prompt template Market Watcher
+│   └── portfolio-review.md                # Prompt template Portfolio Advisor
 │
-├── templates/               # Templates Excel et rapports
-│   ├── import-template.xlsx
-│   ├── watchlist-template.xlsx
-│   └── report-template.md
-│
-├── scripts/                 # Scripts utilitaires
-│   ├── parsers/            # Parseurs de données
-│   └── calculators/        # Calculateurs d'indicateurs
-│
-├── prompts/                # Prompts Claude optimisés
-│   ├── market-analysis.md
-│   └── portfolio-review.md
-│
-└── config/                 # Configuration
-    ├── .env.example
-    ├── alert-thresholds.json
-    └── notification-settings.json
+├── CLAUDE.md                              # Documentation complète du projet
+├── README.md                              # Ce fichier
+├── CHANGELOG.md                           # Historique des versions
+└── TODO.md                                # Liste des tâches à venir
 ```
 
-## Installation
+## 🛠️ Installation
 
 ### Prérequis
 
-- Compte Google (Drive + Gmail)
-- n8n installé (Docker ou npm)
-- Clé API Claude (Anthropic)
-- Accès Yahoo Finance API (gratuit)
+| Élément | Description | Coût |
+|---------|-------------|------|
+| Claude Code | CLI tool Anthropic | Gratuit |
+| Clé API Claude | API Anthropic | 5-20€/mois |
+| Google Workspace | Drive + Gmail | Gratuit |
+| MCP Servers | Serveurs MCP standards | Gratuit |
+| Yahoo Finance | Via MCP | Gratuit |
 
-### Étape 1 : Cloner le projet
+**Total estimé** : **5-20€/mois** (uniquement l'API Claude)
+
+### Installation pas à pas
+
+#### 1. Installer Claude Code
 
 ```bash
-git clone <votre-repo>
+npm install -g @anthropic-ai/claude-code
+```
+
+#### 2. Configurer l'API Claude
+
+```bash
+export ANTHROPIC_API_KEY="your-api-key"
+```
+
+#### 3. Cloner le projet
+
+```bash
+git clone https://github.com/yousmaaza/pea-tracker.git
 cd pea-tracker
 ```
 
-### Étape 2 : Configuration
+#### 4. Configurer les serveurs MCP
 
-```bash
-# Copier le fichier d'environnement
-cp config/.env.example config/.env
+Éditer `.claude/settings.local.json` et ajouter les serveurs nécessaires.
 
-# Éditer avec vos clés API
-nano config/.env
-```
+Voir [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) pour les instructions détaillées.
 
-### Étape 3 : Installer n8n
-
-**Option Docker** :
-```bash
-docker run -it --rm \
-  --name n8n \
-  -p 5678:5678 \
-  -v ~/.n8n:/home/node/.n8n \
-  n8nio/n8n
-```
-
-**Option npm** :
-```bash
-npm install n8n -g
-n8n start
-```
-
-Accéder à : http://localhost:5678
-
-### Étape 4 : Configurer Google Drive
+#### 5. Configurer Google Drive
 
 1. Créer la structure de dossiers :
    ```
    PEA-Tracker/
-   ├── Imports/
-   ├── Data/
-   ├── Rapports/
-   └── Config/
+   ├── Imports/                           # Exports Boursorama
+   ├── Reports/
+   │   ├── monthly/                       # Rapports mensuels
+   │   └── signals/                       # Alertes Market Watcher
+   └── PEA_Watchlist_Indicateurs.xlsx    # Watchlist principale
    ```
 
-2. Configurer les credentials n8n pour Google Drive et Gmail
+2. Configurer l'authentification OAuth pour Google Drive et Gmail
 
-### Étape 5 : Importer les workflows n8n
+#### 6. Configurer Gmail
 
-Consulter [n8n/README.md](./n8n/README.md) pour instructions détaillées.
+Générer un mot de passe d'application et configurer le serveur MCP Gmail.
 
-## Utilisation
+## 📖 Utilisation
 
-### 0. Configuration pip (Nexus/PyPI)
+### 1. Market Watcher - Surveillance quotidienne
 
-Le projet inclut un utilitaire pour basculer entre les dépôts pip :
-
+**Lancement manuel** :
 ```bash
-# Vérifier la configuration actuelle
-./scripts/pip-mode.sh status
-
-# Utiliser PyPI standard (recommandé pour développement)
-./scripts/pip-mode.sh standard
-
-# Utiliser Nexus interne (si disponible)
-./scripts/pip-mode.sh nexus
+claude-code agent run market-watcher-pea
 ```
 
-**Via Claude Code** :
+**Automatisation via cron** (recommandé) :
 ```bash
-/pip-mode standard
-/pip-mode nexus
-/pip-mode status
+# Éditer crontab
+crontab -e
+
+# Ajouter cette ligne pour exécution quotidienne à 8h (jours ouvrés)
+0 8 * * 1-5 cd /path/to/pea-tracker && claude-code agent run market-watcher-pea
 ```
 
-Voir [docs/pip-mode-guide.md](./docs/pip-mode-guide.md) pour plus de détails.
+**Ce que fait l'agent** :
+1. ✅ Récupère la watchlist depuis Google Drive
+2. ✅ Analyse les titres actifs avec Yahoo Finance
+3. ✅ Calcule les indicateurs techniques (RSI, MACD, MA20/50/200)
+4. ✅ Génère les signaux d'achat/vente avec scoring
+5. ✅ Sauvegarde les rapports dans Google Drive
+6. ✅ Envoie les alertes par email (score ≥ 60)
 
-### 1. Surveillance des marchés (Market Watcher)
+### 2. Export Boursorama
 
-Le workflow s'exécute automatiquement chaque jour à 8h :
-- Analyse les titres de votre watchlist
-- Calcule les indicateurs techniques
-- Génère des alertes si opportunités détectées
-- Envoie les alertes par email
+Pour alimenter le Portfolio Advisor (à venir) :
 
-**Configurer votre watchlist** :
-Créer un Google Sheet avec vos titres à surveiller (voir templates/).
-
-### 2. Synchronisation du portefeuille
-
-Le workflow s'exécute automatiquement chaque jour à 19h :
-- Détecte les nouveaux exports Boursorama
-- Parse et consolide les données
-- Met à jour l'historique
-
-**Exporter depuis Boursorama** :
 1. Se connecter à Boursorama
-2. PEA → Télécharger l'historique (Excel)
-3. Déposer le fichier dans Google Drive/PEA-Tracker/Imports/
+2. PEA → Télécharger les positions comptables (CSV)
+3. Uploader dans `Google Drive/PEA-Tracker/Imports/`
 
-### 3. Rapport mensuel (Portfolio Advisor)
+### 3. Environnement Python (optionnel)
 
-Le workflow s'exécute le 1er de chaque mois à 9h :
-- Analyse complète du portefeuille
-- Calcul de performance
-- Recommandations stratégiques
-- Envoi du rapport par email
+Pour les dépendances Python des agents :
 
-**Exécution manuelle** :
-Possible via l'interface n8n si besoin d'un rapport à la demande.
+```bash
+# Créer un environnement virtuel
+python3 -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate     # Windows
 
-## Configuration avancée
-
-### Seuils d'alertes
-
-Éditer `config/alert-thresholds.json` :
-```json
-{
-  "technical_indicators": {
-    "rsi": {
-      "oversold": 30,
-      "overbought": 70
-    }
-  },
-  "alert_scoring": {
-    "min_confidence_score": 60
-  }
-}
+# Utiliser pip-mode standard
+/pip-mode standard
 ```
 
-### Notifications
+## 📊 Signaux et indicateurs
 
-Éditer `config/notification-settings.json` :
-```json
-{
-  "email": {
-    "to": "your-email@example.com"
-  },
-  "notification_preferences": {
-    "min_alert_score": 60,
-    "max_daily_alerts": 10
-  }
-}
+### Types de signaux générés
+
+- 🟢 **BUY** : Opportunité d'achat détectée (RSI < 30, MACD haussier, etc.)
+- 🔴 **SELL** : Signal de vente (RSI > 70, divergence baissière, etc.)
+- 🟡 **WATCH** : Surveillance recommandée (consolidation, signaux mixtes)
+
+### Indicateurs techniques calculés
+
+- **RSI (14 périodes)** : Détection de surachat/survente
+- **MACD (12, 26, 9)** : Identification des tendances
+- **Moyennes mobiles** : MA20, MA50, MA200 (support/résistance)
+- **Volume ratio** : Confirmation des mouvements
+
+### Scoring de confiance
+
+Chaque signal est accompagné d'un **score de confiance (0-100)** basé sur :
+- Convergence des indicateurs
+- Force du signal
+- Contexte de marché
+- Volume de transactions
+
+**Alertes email** : Envoyées uniquement pour les signaux ≥ 60
+
+## 🔧 Configuration avancée
+
+### Personnaliser la watchlist
+
+Éditer le fichier `PEA_Watchlist_Indicateurs.xlsx` sur Google Drive :
+
+**Feuille "Watchlist"** :
+- Colonne A : Ticker (ex: MC.PA, AIR.PA)
+- Colonne B : Nom de l'entreprise
+- Colonne C : Statut (actif/inactif)
+
+**Feuille "Indicateurs"** :
+- Mise à jour automatique par l'agent
+- Historique des calculs
+
+**Feuille "Positions"** :
+- Vos positions actuelles
+- Prix d'achat, quantité, stop-loss
+
+### Automatisation complète
+
+**Crontab Linux/Mac** :
+```bash
+# Market Watcher tous les jours ouvrés à 8h
+0 8 * * 1-5 cd /path/to/pea-tracker && claude-code agent run market-watcher-pea
+
+# Portfolio Advisor le 1er de chaque mois à 9h (quand disponible)
+# 0 9 1 * * cd /path/to/pea-tracker && claude-code agent run portfolio-advisor
 ```
 
-## Coûts estimés
+**Task Scheduler Windows** :
+Créer une tâche planifiée avec déclencheur quotidien.
 
-| Service | Coût mensuel |
-|---------|--------------|
-| Google Workspace | Gratuit |
-| n8n (self-hosted) | 0€ |
-| n8n (cloud) | 0-20€ |
-| Claude API | 5-20€ |
-| Yahoo Finance | Gratuit |
-| **Total** | **5-40€/mois** |
-
-## Développement
-
-### Ajouter un nouvel indicateur technique
-
-1. Créer la fonction dans `scripts/calculators/`
-2. L'intégrer dans le workflow Market Watcher
-3. Mettre à jour le prompt Claude
-4. Tester avec des données historiques
-
-### Personnaliser les rapports
-
-1. Éditer `prompts/portfolio-review.md`
-2. Modifier le template dans `templates/report-template.md`
-3. Ajuster le workflow n8n si nécessaire
-
-## Troubleshooting
+## 🐛 Dépannage
 
 ### Les alertes ne sont pas envoyées
 
-1. Vérifier que le workflow Market Watcher est activé
-2. Vérifier les credentials Gmail dans n8n
-3. Vérifier le score minimum dans la configuration
-4. Consulter les logs d'exécution n8n
+1. Vérifier la configuration Gmail MCP dans `.claude/settings.local.json`
+2. Vérifier que des signaux avec score ≥ 60 ont été générés
+3. Consulter les logs de l'agent
+4. Tester l'envoi d'email manuellement
 
-### Le rapport mensuel n'est pas généré
+### Erreur d'accès Google Drive
 
-1. Vérifier la clé API Claude
-2. Vérifier les données du portefeuille dans Google Sheets
-3. Consulter les logs d'erreur dans n8n
+1. Vérifier l'authentification OAuth
+2. Vérifier les permissions du dossier PEA-Tracker
+3. Régénérer le token si nécessaire
 
-### Erreur Yahoo Finance API
+### Erreur Yahoo Finance
 
 1. Vérifier le format des tickers (ex: MC.PA pour LVMH)
 2. Vérifier la connexion internet
 3. Attendre quelques minutes (rate limiting possible)
 
-## Sécurité
+### L'agent ne trouve pas la watchlist
 
-- Ne jamais commiter les fichiers `.env`
-- Utiliser des mots de passe d'application Gmail
-- Limiter les permissions Google Drive
-- Chiffrer les données sensibles
-- Sauvegarder régulièrement la configuration
+1. Vérifier le nom exact du fichier : `PEA_Watchlist_Indicateurs.xlsx`
+2. Vérifier qu'il est dans le dossier `PEA-Tracker/` à la racine de Google Drive
+3. Vérifier les permissions de lecture
 
-## Roadmap
+## 🔒 Sécurité
 
-### Phase 1 : Setup Infrastructure ✅
-- [x] Structure du projet
-- [x] Configuration de base
-- [ ] Installation n8n
-- [ ] Configuration Google Drive
-- [ ] Obtention clés API
+- ✅ Clés API stockées dans variables d'environnement
+- ✅ Authentification OAuth pour Google services
+- ✅ Pas de stockage d'identifiants broker
+- ✅ Communications chiffrées (HTTPS)
+- ⚠️ Ne jamais commiter `.claude/settings.local.json` ou `.env`
 
-### Phase 2 : Workflow Portfolio Sync
-- [ ] Détection nouveaux fichiers
-- [ ] Parsing Excel
-- [ ] Consolidation historique
-- [ ] Calcul métriques de base
+**Fichiers à ne jamais versionner** :
+```
+.claude/settings.local.json
+.env
+credentials.json
+token.json
+```
 
-### Phase 3 : Agent Market Watcher
-- [ ] Intégration Yahoo Finance
-- [ ] Calcul indicateurs techniques
-- [ ] Système de scoring
-- [ ] Workflow alertes
-- [ ] Prompt Claude
+## 🗺️ Roadmap
 
-### Phase 4 : Agent Portfolio Advisor
-- [ ] Calcul performance
-- [ ] Analyse allocation
-- [ ] Template rapport
-- [ ] Prompt Claude
-- [ ] Workflow envoi rapport
+### Phase 1 : Infrastructure MCP ✅ TERMINÉE
+- [x] Configuration Claude Code
+- [x] Installation serveurs MCP
+- [x] Authentification Google Drive/Gmail
+- [x] Structure Google Drive
+- [x] Agent Market Watcher implémenté et opérationnel
 
-### Phase 5 : Améliorations
+### Phase 2 : Portfolio Advisor 🔄 EN COURS
+- [ ] Implémenter l'agent Portfolio Advisor
+- [ ] Parser les exports Boursorama (CSV)
+- [ ] Calculer les métriques de performance
+- [ ] Générer les rapports mensuels
+- [ ] Automatiser l'envoi des rapports
+
+### Phase 3 : Optimisations 📋 PLANIFIÉE
+- [ ] Backtesting des signaux Market Watcher
 - [ ] Profil de risque personnalisé
-- [ ] Backtesting
-- [ ] Actualités financières
-- [ ] Dashboard web
+- [ ] Intégration actualités financières (RSS/API)
+- [ ] Dashboard web simple (optionnel)
+- [ ] Alertes Telegram/SMS (optionnel)
 
-## Support et contribution
+### Phase 4 : Améliorations avancées 🔮 FUTUR
+- [ ] Machine Learning pour scoring amélioré
+- [ ] Analyse sentiment market (NLP)
+- [ ] Intégration données fondamentales
+- [ ] Support multi-portefeuilles
 
-### Signaler un bug
+## 🤝 Contribution
 
-Créer une issue avec :
-- Description du problème
-- Étapes pour reproduire
-- Logs d'erreur
-- Configuration (sans clés API)
+### Workflow Git
+
+Le projet utilise un workflow Git strict avec commits et push réguliers.
+
+**Convention de commits** :
+- `feat:` - Nouvelle fonctionnalité
+- `fix:` - Correction de bug
+- `docs:` - Documentation uniquement
+- `refactor:` - Refactoring
+- `test:` - Ajout de tests
+
+Voir [CLAUDE.md - Workflow Git](CLAUDE.md#workflow-de-développement-et-gestion-git) pour les détails complets.
 
 ### Proposer une amélioration
 
-Les pull requests sont les bienvenues !
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/AmazingFeature`)
+3. Commiter vos changements (`git commit -m 'feat: ajout AmazingFeature'`)
+4. Pusher vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
 
-### Questions
+### Signaler un bug
 
-Consulter d'abord :
-- [CLAUDE.md](./CLAUDE.md) - Documentation complète
-- [docs/agents/](./docs/agents/) - Spécifications détaillées
-- [n8n/README.md](./n8n/README.md) - Guide n8n
+Ouvrir une issue avec :
+- Description claire du problème
+- Étapes pour reproduire
+- Logs d'erreur (sans clés API)
+- Configuration système
 
-## Licence
+## 📚 Documentation
+
+- **[CLAUDE.md](CLAUDE.md)** - Documentation complète du projet
+- **[CHANGELOG.md](CHANGELOG.md)** - Historique des versions
+- **[docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** - Guide d'installation détaillé
+- **[docs/architecture/mcp-integration.md](docs/architecture/mcp-integration.md)** - Architecture MCP
+- **[docs/agents/market-watcher-spec.md](docs/agents/market-watcher-spec.md)** - Specs Market Watcher
+- **[docs/agents/portfolio-advisor-spec.md](docs/agents/portfolio-advisor-spec.md)** - Specs Portfolio Advisor
+
+## 📜 Glossaire
+
+- **PEA** : Plan d'Épargne en Actions (enveloppe fiscale française)
+- **MCP** : Model Context Protocol (standard pour connecter les LLM aux données)
+- **RSI** : Relative Strength Index (indicateur de momentum)
+- **MACD** : Moving Average Convergence Divergence (indicateur de tendance)
+- **Claude Code** : CLI tool pour exécuter des agents Claude
+
+## ⚠️ Disclaimer
+
+**AVERTISSEMENT IMPORTANT**
+
+Ce projet est un **outil d'aide à la décision** utilisant l'analyse technique automatisée. Il **NE CONSTITUE EN AUCUN CAS UN CONSEIL EN INVESTISSEMENT** au sens de l'AMF (Autorité des Marchés Financiers).
+
+**Responsabilités** :
+- Toutes les décisions d'investissement restent sous votre **entière responsabilité**
+- Les performances passées ne préjugent **pas** des performances futures
+- Les marchés financiers comportent des **risques de perte en capital**
+- Vous devez toujours effectuer vos **propres recherches**
+- Consultez un conseiller financier agréé si nécessaire
+
+**Limites de l'outil** :
+- Les analyses sont basées uniquement sur des indicateurs techniques
+- Les données peuvent contenir des erreurs ou retards
+- L'IA peut générer des recommandations erronées
+- Aucune garantie de rentabilité n'est fournie
+
+**Utilisation à vos risques et périls.**
+
+## 📄 Licence
 
 [À définir]
 
-## Disclaimer
+## 🙏 Remerciements
 
-⚠️ **Important** : Ce projet est un outil d'aide à la décision. Il ne constitue en aucun cas un conseil en investissement. Les décisions d'investissement restent sous votre entière responsabilité. Les performances passées ne préjugent pas des performances futures.
-
-Cet outil ne remplace pas l'analyse et le jugement humain. Toujours effectuer vos propres recherches avant d'investir.
+- [Anthropic](https://www.anthropic.com/) pour Claude et Claude Code
+- [Model Context Protocol](https://modelcontextprotocol.io/) pour le standard MCP
+- [Yahoo Finance](https://finance.yahoo.com/) pour les données de marché gratuites
 
 ---
 
-**Version** : 1.0.0
-**Dernière mise à jour** : 2026-01-07
-**Statut** : En développement
+**Version** : 2.0.0
+**Dernière mise à jour** : 2026-01-08
+**Statut** : Phase 1 terminée, Agent Market Watcher opérationnel
+**Architecture** : MCP-native avec Claude Code
 
-Créé avec Claude Code
+Créé avec ❤️ et Claude Code
