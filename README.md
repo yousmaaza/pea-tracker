@@ -324,70 +324,38 @@ credentials.json
 token.json
 ```
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap et TODO
 
-### Phase 1 : Infrastructure MCP ✅ TERMINÉE
-- [x] Configuration Claude Code
-- [x] Installation serveurs MCP
-- [x] Authentification Google Drive/Gmail
-- [x] Structure Google Drive
-- [x] Agent Market Watcher implémenté et opérationnel
+**Phase actuelle** : Phase 1 ✅ terminée | Phase 2 🔄 en cours
 
-### Phase 2 : Portfolio Advisor 🔄 EN COURS
-- [ ] Implémenter l'agent Portfolio Advisor
-- [ ] Parser les exports Boursorama (CSV)
-- [ ] Calculer les métriques de performance
-- [ ] Générer les rapports mensuels
-- [ ] Automatiser l'envoi des rapports
+Pour consulter la roadmap détaillée et la TODO list complète du projet :
 
-### Phase 3 : Optimisations 📋 PLANIFIÉE
-- [ ] Backtesting des signaux Market Watcher
-- [ ] Profil de risque personnalisé
-- [ ] Intégration actualités financières (RSS/API)
-- [ ] Dashboard web simple (optionnel)
-- [ ] Alertes Telegram/SMS (optionnel)
+📋 **[Project Roadmap](docs/Project_Roadmap.md)** - Roadmap complète avec toutes les phases et tâches
 
-### Phase 4 : Améliorations avancées 🔮 FUTUR
-- [ ] Machine Learning pour scoring amélioré
-- [ ] Analyse sentiment market (NLP)
-- [ ] Intégration données fondamentales
-- [ ] Support multi-portefeuilles
+**Prochaines étapes** :
+- Implémenter l'agent Portfolio Advisor
+- Parser les exports Boursorama
+- Générer les rapports mensuels
 
 ## 🤝 Contribution
 
-### Workflow Git
+Le projet utilise un workflow Git strict. Voir [CLAUDE.md - Workflow Git](CLAUDE.md#workflow-de-développement-et-gestion-git) pour les détails.
 
-Le projet utilise un workflow Git strict avec commits et push réguliers.
+**Convention de commits** : `feat:`, `fix:`, `docs:`, `refactor:`, `test:`
 
-**Convention de commits** :
-- `feat:` - Nouvelle fonctionnalité
-- `fix:` - Correction de bug
-- `docs:` - Documentation uniquement
-- `refactor:` - Refactoring
-- `test:` - Ajout de tests
-
-Voir [CLAUDE.md - Workflow Git](CLAUDE.md#workflow-de-développement-et-gestion-git) pour les détails complets.
-
-### Proposer une amélioration
-
+**Process de contribution** :
 1. Fork le projet
-2. Créer une branche (`git checkout -b feature/AmazingFeature`)
-3. Commiter vos changements (`git commit -m 'feat: ajout AmazingFeature'`)
-4. Pusher vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-### Signaler un bug
-
-Ouvrir une issue avec :
-- Description claire du problème
-- Étapes pour reproduire
-- Logs d'erreur (sans clés API)
-- Configuration système
+2. Créer une branche feature
+3. Commiter avec messages clairs
+4. Ouvrir une Pull Request
+5. **Mettre à jour [Project_Roadmap.md](docs/Project_Roadmap.md)** si feature complétée
 
 ## 📚 Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** - Documentation complète du projet
+- **[README.md](README.md)** - Ce fichier (installation et utilisation)
 - **[CHANGELOG.md](CHANGELOG.md)** - Historique des versions
+- **[docs/Project_Roadmap.md](docs/Project_Roadmap.md)** - Roadmap et TODO list
 - **[docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** - Guide d'installation détaillé
 - **[docs/architecture/mcp-integration.md](docs/architecture/mcp-integration.md)** - Architecture MCP
 - **[docs/agents/market-watcher-spec.md](docs/agents/market-watcher-spec.md)** - Specs Market Watcher
