@@ -331,7 +331,106 @@ crontab -e
 - [ ] Support multi-portefeuilles
 
 ## Points d'attention
-- Si besoin d'utiliser du python il faudra s'assurer que le profile d'environnement 
+- Si besoin d'utiliser du python il faudra s'assurer que le profile d'environnement
+
+## Workflow de développement et gestion Git
+
+### Commits et push réguliers
+
+**⚠️ RÈGLE IMPORTANTE** : Toute modification significative du code ou de la documentation doit être commitée et pushée immédiatement.
+
+**Quand commiter et pusher** :
+- ✅ **Après chaque modification fonctionnelle** (ajout de feature, correction de bug, refactoring)
+- ✅ **Après mise à jour de documentation** (README, CLAUDE.md, fichiers docs/)
+- ✅ **Après modification de configuration** (MCP, agents, settings)
+- ✅ **Après création/modification de fichiers** importants
+- ✅ **À la fin de chaque tâche complétée** dans la todo list
+- ❌ **Pas de commit** pour les fichiers temporaires ou tests locaux
+
+**Bonnes pratiques de commit** :
+1. **Messages clairs et descriptifs** en français :
+   ```bash
+   # Format recommandé
+   git commit -m "feat: ajout calcul RSI dans Market Watcher"
+   git commit -m "fix: correction parsing Excel watchlist"
+   git commit -m "docs: mise à jour CLAUDE.md avec workflow Git"
+   git commit -m "refactor: simplification logique scoring signaux"
+   ```
+
+2. **Préfixes de commit** (convention) :
+   - `feat:` - Nouvelle fonctionnalité
+   - `fix:` - Correction de bug
+   - `docs:` - Documentation uniquement
+   - `refactor:` - Refactoring sans changement de fonctionnalité
+   - `test:` - Ajout ou modification de tests
+   - `chore:` - Maintenance (dépendances, config, etc.)
+   - `perf:` - Amélioration de performance
+
+3. **Commits atomiques** :
+   - Un commit = une modification logique
+   - Ne pas mélanger plusieurs changements non liés
+   - Facilite le review et le rollback si nécessaire
+
+**Workflow Git standard** :
+```bash
+# 1. Vérifier l'état actuel
+git status
+
+# 2. Ajouter les fichiers modifiés
+git add <fichiers>
+# ou pour tout ajouter
+git add .
+
+# 3. Commiter avec message descriptif
+git commit -m "feat: description claire de la modification"
+
+# 4. Pusher vers la branche de développement
+git push -u origin claude/update-claude-workflow-9kjVv
+
+# 5. En cas d'erreur réseau, retry avec backoff
+# (automatique via les instructions Git Operations)
+```
+
+**Branche de développement** :
+- 🔹 Branche actuelle : `claude/update-claude-workflow-9kjVv`
+- 🔹 Toujours développer sur cette branche
+- 🔹 JAMAIS pusher sur main/master sans permission explicite
+- 🔹 Créer une PR pour merger vers main
+
+**Gestion des erreurs Git** :
+- Si `git push` échoue avec erreur réseau → retry jusqu'à 4 fois (2s, 4s, 8s, 16s)
+- Si erreur 403 → vérifier que la branche commence par `claude/` et se termine par session ID
+- Si conflit → `git pull --rebase origin <branch>` puis résoudre et pusher
+
+**Synchronisation** :
+```bash
+# Récupérer les dernières modifications
+git fetch origin claude/update-claude-workflow-9kjVv
+git pull origin claude/update-claude-workflow-9kjVv
+
+# Ou en une commande
+git pull --rebase origin claude/update-claude-workflow-9kjVv
+```
+
+**À ÉVITER** :
+- ❌ Commiter des secrets ou clés API (.env, credentials.json)
+- ❌ Commiter des fichiers de config locaux (.claude/settings.local.json)
+- ❌ Force push sur des branches partagées
+- ❌ Amender des commits déjà pushés (sauf autorisation)
+- ❌ Commits vagues type "mise à jour" ou "fix"
+
+**Utilisation du .gitignore** :
+Le projet doit inclure un `.gitignore` avec :
+```
+.claude/settings.local.json
+.env
+*.pyc
+__pycache__/
+node_modules/
+.DS_Store
+credentials.json
+token.json
+```
 
 ### Réglementaire
 ⚠️ **Important** : Ce système ne constitue pas du conseil en investissement au sens AMF. Tous les rapports et alertes incluent un disclaimer approprié. Les décisions d'investissement restent sous la responsabilité de l'utilisateur.
