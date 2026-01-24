@@ -1,0 +1,142 @@
+{
+  "analysis_date": "2026-01-24T10:30:00+01:00",
+  "agent_version": "1.0.0",
+  "analysis_period_days": 252,
+  "summary": {
+    "total_analyzed": 2,
+    "buy_signals": 0,
+    "sell_signals": 0,
+    "watch_signals": 2,
+    "neutral_signals": 0,
+    "high_confidence_signals": 0,
+    "signals_above_threshold": 0
+  },
+  "signals": [
+    {
+      "ticker": "BNP.PA",
+      "company_name": "BNP Paribas",
+      "signal_type": "watch",
+      "confidence_score": 55,
+      "emoji": "🟡",
+      "summary": "Tendance haussière long terme intacte mais signaux de surchauffe court terme. RSI élevé (68.5) et volume faible suggèrent prudence. Surveillance active recommandée.",
+      "current_price": 88.14,
+      "price_change_52w_pct": 22.2,
+      "technical_details": {
+        "rsi": 68.5,
+        "macd": 1.2,
+        "macd_signal": 0.8,
+        "macd_histogram": 0.4,
+        "ma20": 86.50,
+        "ma50": 76.80,
+        "ma200": 72.10,
+        "volume_ratio": 0.85
+      },
+      "key_points": [
+        "RSI à 68.5 approche zone de surachat - prudence",
+        "Prix au-dessus de toutes les MA (tendance haussière intacte)",
+        "Tendance long terme positive (+22% vs MA200)",
+        "Volume en retrait -15% vs moyenne - manque conviction"
+      ],
+      "risks": [
+        "RSI élevé suggère correction potentielle court terme",
+        "Volume faible ne confirme pas la hausse",
+        "Zone de résistance 88-89€ testée",
+        "Exposition ralentissement économique européen"
+      ],
+      "key_levels": {
+        "support_immediate": 86.50,
+        "support_major": 76.80,
+        "support_critical": 72.10,
+        "resistance": 89.00
+      },
+      "action": "Attendre confirmation volume ou repli vers MA20 (86.50€)",
+      "report_generated": false,
+      "email_sent": false,
+      "reason_no_alert": "Score 55 < seuil 60"
+    },
+    {
+      "ticker": "MC.PA",
+      "company_name": "LVMH",
+      "signal_type": "watch",
+      "confidence_score": 50,
+      "emoji": "🟡",
+      "summary": "Consolidation après correction -22% depuis sommet. Momentum baissier mais support MA200 maintenu. Secteur luxe sous pression. Surveillance active.",
+      "current_price": 591.40,
+      "price_change_52w_pct": -22.5,
+      "technical_details": {
+        "rsi": 42.5,
+        "macd": -2.8,
+        "macd_signal": -1.5,
+        "macd_histogram": -1.3,
+        "ma20": 628.50,
+        "ma50": 609.80,
+        "ma200": 536.40,
+        "volume_ratio": 0.87
+      },
+      "key_points": [
+        "RSI à 42.5 en territoire neutre",
+        "Correction -22% depuis sommet 762.70€",
+        "MACD momentum baissier persistant",
+        "Support MA200 à 536.40€ maintenu (+10%)",
+        "Volume faible indique manque conviction"
+      ],
+      "risks": [
+        "Tendance court terme baissière (prix < MA20/MA50)",
+        "Secteur luxe sous pression (ralentissement Chine)",
+        "Résistance MA20 à 628€ difficile à franchir",
+        "Momentum technique négatif"
+      ],
+      "opportunities": [
+        "Valorisation attractive après correction",
+        "Leader mondial luxe avec marques iconiques",
+        "Support technique MA200 solide",
+        "Potentiel rebond si amélioration macro"
+      ],
+      "key_levels": {
+        "resistance_immediate": 628.50,
+        "resistance_major": 609.80,
+        "support_critical": 536.40,
+        "support_psychological": 500.00
+      },
+      "action": "Attendre cassure MA20 (628€) avec volume ou repli vers MA200 (536€)",
+      "report_generated": false,
+      "email_sent": false,
+      "reason_no_alert": "Score 50 < seuil 60"
+    }
+  ],
+  "market_context": {
+    "general_sentiment": "Mixed - Consolidation phase",
+    "sector_analysis": {
+      "financials": "BNP shows strong long-term uptrend but short-term overbought signs",
+      "luxury": "LVMH under pressure from China slowdown and weak global luxury demand"
+    },
+    "key_themes": [
+      "European economic uncertainty",
+      "ECB rate policy impact on financials",
+      "China consumption weakness affecting luxury",
+      "Technical consolidation after strong 2025"
+    ]
+  },
+  "next_steps": [
+    "Monitor daily for clearer signals emergence",
+    "Expand watchlist to capture more PEA opportunities",
+    "Track Q4 2025 earnings releases",
+    "Follow macroeconomic indicators (ECB, China PMI)",
+    "Watch luxury consumption trends"
+  ],
+  "configuration": {
+    "confidence_threshold": 60,
+    "rsi_period": 14,
+    "macd_fast": 12,
+    "macd_slow": 26,
+    "macd_signal": 9,
+    "moving_averages": [20, 50, 200],
+    "volume_lookback": 20
+  },
+  "data_sources": {
+    "provider": "Yahoo Finance API",
+    "data_delay_minutes": 15,
+    "historical_period": "1 year (252 trading days)",
+    "update_frequency": "Daily OHLCV"
+  }
+}

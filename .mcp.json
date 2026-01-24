@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "yfinance": {
+      "type": "sse",
+      "url": "http://localhost:8000/sse"
+    },
+    "googledrive": {
+          "type": "http",
+          "url": "https://server.smithery.ai/googledrive/mcp"
+        },
+    "gmail": {
+      "type": "http",
+      "url": "https://server.smithery.ai/gmail/mcp"
+    }
+  }
+}

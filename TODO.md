@@ -10,11 +10,42 @@
 - [ ] Vérifier l'upload des rapports dans Google Drive
 - [ ] Vérifier l'envoi des emails d'alerte
 
-### 2. Configurer l'automatisation
-- [ ] Créer un script cron pour exécution quotidienne à 8h
-- [ ] Tester l'exécution automatique
-- [ ] Configurer les logs d'exécution
-- [ ] Mettre en place un système d'alerte en cas d'échec
+### 2. Configurer l'automatisation (Refactoring launchd) 🚧 EN COURS
+Branche: `feature/agent-automation-launchd`
+
+#### Phase 1 : Scripts Utilitaires (Fondations)
+- [ ] Créer `scripts/utils/check-prerequisites.sh` - Vérifications système
+- [ ] Créer `scripts/utils/start-yfinance-mcp.sh` - Démarrage MCP Yahoo Finance
+- [ ] Créer `scripts/utils/stop-yfinance-mcp.sh` - Arrêt MCP Yahoo Finance
+- [ ] Créer `scripts/utils/send-error-notification.sh` - Notifications d'erreur
+
+#### Phase 2 : Wrapper Principal
+- [ ] Créer `scripts/run-market-watcher.sh` - Script orchestrateur
+- [ ] Rendre tous les scripts exécutables (chmod +x)
+
+#### Phase 3 : Configuration launchd
+- [ ] Créer `launchd/com.pea-tracker.market-watcher-07h.plist` - Job 7h
+- [ ] Créer `launchd/com.pea-tracker.market-watcher-12h.plist` - Job 12h
+- [ ] Créer `launchd/com.pea-tracker.market-watcher-18h.plist` - Job 18h
+- [ ] Créer `launchd/com.pea-tracker.market-watcher-21h.plist` - Job 21h
+
+#### Phase 4 : Configuration Environnement
+- [ ] Créer `config/.env.template` - Template configuration
+- [ ] Créer structure `logs/` avec `.gitkeep`
+- [ ] Mettre à jour `.gitignore` - Sécurité secrets
+
+#### Phase 5 : Documentation
+- [ ] Mettre à jour `CLAUDE.md` - Section Automatisation launchd
+- [ ] Mettre à jour `README.md` - Guide installation
+- [ ] Mettre à jour ce fichier `TODO.md` - Marquer tâches terminées
+
+#### Tests et Validation
+- [ ] Tester scripts utilitaires individuellement
+- [ ] Tester wrapper principal (run-market-watcher.sh)
+- [ ] Tester notification d'erreur
+- [ ] Tester 1 job launchd (07h)
+- [ ] Déployer les 4 jobs launchd
+- [ ] Surveillance période probatoire (1 semaine)
 
 ## 📋 Phase 2 : Agent Portfolio Advisor
 
