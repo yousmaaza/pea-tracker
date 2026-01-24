@@ -10,42 +10,53 @@
 - [ ] Vérifier l'upload des rapports dans Google Drive
 - [ ] Vérifier l'envoi des emails d'alerte
 
-### 2. Configurer l'automatisation (Refactoring launchd) 🚧 EN COURS
-Branche: `feature/agent-automation-launchd`
+### 2. Configurer l'automatisation (Refactoring launchd) ✅ TERMINÉ
+Branche: `feature/agent-automation-launchd` (pushée sur GitHub)
 
-#### Phase 1 : Scripts Utilitaires (Fondations)
-- [ ] Créer `scripts/utils/check-prerequisites.sh` - Vérifications système
-- [ ] Créer `scripts/utils/start-yfinance-mcp.sh` - Démarrage MCP Yahoo Finance
-- [ ] Créer `scripts/utils/stop-yfinance-mcp.sh` - Arrêt MCP Yahoo Finance
-- [ ] Créer `scripts/utils/send-error-notification.sh` - Notifications d'erreur
+#### Phase 1 : Scripts Utilitaires (Fondations) ✅
+- [x] Créer `scripts/utils/check-prerequisites.sh` - Vérifications système (Docker, API keys)
+- [x] Créer `scripts/utils/start-yfinance-mcp.sh` - Démarrage conteneur Docker MCP
+- [x] Créer `scripts/utils/stop-yfinance-mcp.sh` - Arrêt conteneur Docker MCP
+- [x] Créer `scripts/utils/send-error-notification.sh` - Notifications via Gmail MCP
 
-#### Phase 2 : Wrapper Principal
-- [ ] Créer `scripts/run-market-watcher.sh` - Script orchestrateur
-- [ ] Rendre tous les scripts exécutables (chmod +x)
+#### Phase 2 : Wrapper Principal ✅
+- [x] Créer `scripts/run-market-watcher.sh` - Script orchestrateur (224 lignes)
+- [x] Rendre tous les scripts exécutables (chmod +x)
 
-#### Phase 3 : Configuration launchd
-- [ ] Créer `launchd/com.pea-tracker.market-watcher-07h.plist` - Job 7h
-- [ ] Créer `launchd/com.pea-tracker.market-watcher-12h.plist` - Job 12h
-- [ ] Créer `launchd/com.pea-tracker.market-watcher-18h.plist` - Job 18h
-- [ ] Créer `launchd/com.pea-tracker.market-watcher-21h.plist` - Job 21h
+#### Phase 3 : Configuration launchd ✅
+- [x] Créer `launchd/com.pea-tracker.market-watcher-07h.plist` - Job 7h (Lun-Ven)
+- [x] Créer `launchd/com.pea-tracker.market-watcher-12h.plist` - Job 12h (Lun-Ven)
+- [x] Créer `launchd/com.pea-tracker.market-watcher-18h.plist` - Job 18h (Lun-Ven)
+- [x] Créer `launchd/com.pea-tracker.market-watcher-21h.plist` - Job 21h (Lun-Ven)
 
-#### Phase 4 : Configuration Environnement
-- [ ] Créer `config/.env.template` - Template configuration
-- [ ] Créer structure `logs/` avec `.gitkeep`
-- [ ] Mettre à jour `.gitignore` - Sécurité secrets
+#### Phase 4 : Configuration Environnement ✅
+- [x] Créer `config/.env.template` - Template avec ANTHROPIC_API_KEY, EMAIL, etc.
+- [x] Créer structure `logs/` avec `.gitkeep`
+- [x] Mettre à jour `.gitignore` - Ajout *.pid, config/.env
 
-#### Phase 5 : Documentation
-- [ ] Mettre à jour `CLAUDE.md` - Section Automatisation launchd
-- [ ] Mettre à jour `README.md` - Guide installation
-- [ ] Mettre à jour ce fichier `TODO.md` - Marquer tâches terminées
+#### Phase 5 : Documentation ✅
+- [x] Mettre à jour `CLAUDE.md` - Section complète "Automatisation via launchd"
+- [x] Mettre à jour `README.md` - Architecture MCP, section Automatisation
+- [x] Mettre à jour ce fichier `TODO.md` - Marquer tâches terminées
 
-#### Tests et Validation
-- [ ] Tester scripts utilitaires individuellement
-- [ ] Tester wrapper principal (run-market-watcher.sh)
-- [ ] Tester notification d'erreur
-- [ ] Tester 1 job launchd (07h)
-- [ ] Déployer les 4 jobs launchd
+#### Adaptation Docker ✅
+- [x] Refactoriser start/stop-yfinance-mcp.sh pour gérer conteneur Docker
+- [x] Mettre à jour check-prerequisites.sh pour vérifier Docker
+- [x] Corriger health check SSE (timeout 1s au lieu de stream infini)
+- [x] Pusher les 3 commits vers GitHub
+
+#### Tests et Validation 🚧 EN COURS
+- [x] Tester scripts utilitaires individuellement (start/stop MCP validés)
+- [ ] Tester wrapper principal (run-market-watcher.sh) - exécution complète
+- [ ] Tester notification d'erreur via Gmail MCP
+- [ ] Tester 1 job launchd (07h) manuellement
+- [ ] Déployer les 4 jobs launchd dans ~/Library/LaunchAgents
 - [ ] Surveillance période probatoire (1 semaine)
+
+**Commits** : 3 commits sur `feature/agent-automation-launchd`
+- `c80a31e` : Phase 1 & 2 (scripts automatisation)
+- `8ca4323` : Phase 3 & 4 (launchd + config)
+- `be3e1bb` : Adaptation Docker (refactor MCP scripts)
 
 ## 📋 Phase 2 : Agent Portfolio Advisor
 
@@ -173,5 +184,6 @@ Branche: `feature/agent-automation-launchd`
 
 ---
 
-**Dernière mise à jour** : 2026-01-07
+**Dernière mise à jour** : 2026-01-24
 **Responsable** : [@yousrimaazaoui](mailto:votre@email.com)
+**Statut** : Agent Market Watcher opérationnel + Automatisation launchd déployée

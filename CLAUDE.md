@@ -156,6 +156,223 @@ claude-code
 
 **Spécifications complètes** : [docs/agents/portfolio-advisor-spec.md](docs/agents/portfolio-advisor-spec.md)
 
+## Automatisation via launchd
+
+### Architecture d'automatisation
+
+Le système utilise **launchd** (scheduler natif macOS) pour exécuter l'agent Market Watcher automatiquement 4 fois par jour pendant les jours de bourse :
+
+- **07h00** : Avant ouverture des marchés européens
+- **12h00** : Mi-journée (suivi intraday)
+- **18h00** : Après clôture (analyse journalière)
+- **21h00** : Analyse fin de journée
+
+**Jours d'exécution** : Lundi à Vendredi uniquement (pas de weekends)
+
+### Flux d'automatisation
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  launchd (macOS)                                             │
+│  4 plists pour Market Watcher (7h, 12h, 18h, 21h)          │
+│  Jours: Lundi-Vendredi uniquement                           │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 v
+┌─────────────────────────────────────────────────────────────┐
+│  Wrapper Script: scripts/run-market-watcher.sh              │
+│                                                              │
+│  1. Vérifier prérequis (Docker, API keys)                  │
+│  2. Démarrer MCP Yahoo Finance (Docker)                     │
+│  3. Activer venv Python                                     │
+│  4. Exécuter: claude-code agent run market-watcher-pea     │
+│  5. Logger résultats                                        │
+│  6. Envoyer email d'erreur si échec (Gmail MCP)            │
+│  7. Arrêter MCP Yahoo Finance (si démarré par le script)   │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 v
+┌─────────────────────────────────────────────────────────────┐
+│  Agent Market Watcher (Claude)                              │
+│  - Analyse via MCP yfinance, googledrive, gmail            │
+│  - Génère signaux et alertes                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Composants
+
+**Scripts créés** :
+- `scripts/run-market-watcher.sh` : Wrapper principal orchestrant l'exécution
+- `scripts/utils/check-prerequisites.sh` : Vérifie Docker, API keys, MCP servers
+- `scripts/utils/start-yfinance-mcp.sh` : Démarre le conteneur Docker MCP Yahoo Finance
+- `scripts/utils/stop-yfinance-mcp.sh` : Arrête proprement le conteneur Docker
+- `scripts/utils/send-error-notification.sh` : Envoie des alertes par email en cas d'erreur
+
+**Fichiers launchd** :
+- `launchd/com.pea-tracker.market-watcher-07h.plist`
+- `launchd/com.pea-tracker.market-watcher-12h.plist`
+- `launchd/com.pea-tracker.market-watcher-18h.plist`
+- `launchd/com.pea-tracker.market-watcher-21h.plist`
+
+**Configuration** :
+- `config/.env.template` : Template de configuration (copier vers `config/.env`)
+- `logs/` : Répertoire des logs d'exécution
+
+### Prérequis techniques
+
+| Élément | Description | Requis |
+|---------|-------------|--------|
+| Docker | Pour exécuter le serveur MCP Yahoo Finance | ✅ Oui |
+| Image Docker | `yahoo-finance-mcp` (construite depuis le repo) | ✅ Oui |
+| Python 3.11+ | Pour l'environnement virtuel | ✅ Oui |
+| claude-code | CLI Anthropic | ✅ Oui |
+| ANTHROPIC_API_KEY | Clé API Claude | ✅ Oui |
+| Google Drive MCP | Accès aux fichiers Excel | ✅ Oui |
+| Gmail MCP | Envoi d'alertes | ✅ Oui |
+
+### Installation
+
+#### 1. Construire l'image Docker MCP Yahoo Finance
+
+```bash
+cd /path/to/yahoo-finance-mcp
+docker build -t yahoo-finance-mcp .
+```
+
+#### 2. Créer le fichier de configuration
+
+```bash
+cd /path/to/pea-tracker
+cp config/.env.template config/.env
+```
+
+Éditer `config/.env` avec vos vraies valeurs :
+
+```bash
+# Claude API (REQUIS)
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
+
+# MCP Yahoo Finance (chemin serveur local)
+YAHOO_FINANCE_MCP_PATH=/Users/yousrids/Documents/yahoo-finance-mcp
+
+# Email pour alertes d'erreur
+EMAIL_RECIPIENT=votre@email.com
+
+# Niveau de log (debug, info, error)
+LOG_LEVEL=info
+```
+
+#### 3. Créer l'environnement Python (si nécessaire)
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### 4. Tester manuellement
+
+```bash
+# Tester les prérequis
+./scripts/utils/check-prerequisites.sh
+
+# Tester le démarrage MCP
+./scripts/utils/start-yfinance-mcp.sh
+
+# Tester le wrapper complet
+./scripts/run-market-watcher.sh
+
+# Tester l'arrêt MCP
+./scripts/utils/stop-yfinance-mcp.sh
+```
+
+#### 5. Installer les jobs launchd
+
+```bash
+# Copier les plists vers ~/Library/LaunchAgents
+cp launchd/*.plist ~/Library/LaunchAgents/
+
+# Charger tous les jobs
+launchctl load ~/Library/LaunchAgents/com.pea-tracker.market-watcher-07h.plist
+launchctl load ~/Library/LaunchAgents/com.pea-tracker.market-watcher-12h.plist
+launchctl load ~/Library/LaunchAgents/com.pea-tracker.market-watcher-18h.plist
+launchctl load ~/Library/LaunchAgents/com.pea-tracker.market-watcher-21h.plist
+```
+
+### Vérification et monitoring
+
+**Lister les jobs actifs** :
+```bash
+launchctl list | grep pea-tracker
+```
+
+**Tester manuellement un job** :
+```bash
+launchctl start com.pea-tracker.market-watcher-07h
+```
+
+**Consulter les logs** :
+```bash
+# Logs launchd
+tail -f logs/launchd-07h.log
+tail -f logs/launchd-07h.err
+
+# Logs Market Watcher
+tail -f logs/market-watcher/market-watcher-*.log
+
+# Logs Docker MCP
+docker logs yfinance-mcp --tail 50
+```
+
+**Vérifier l'état du conteneur Docker** :
+```bash
+docker ps | grep yfinance-mcp
+docker logs yfinance-mcp
+```
+
+### Désinstallation
+
+```bash
+# Décharger tous les jobs
+launchctl unload ~/Library/LaunchAgents/com.pea-tracker.market-watcher-*.plist
+
+# Supprimer les plists
+rm ~/Library/LaunchAgents/com.pea-tracker.market-watcher-*.plist
+
+# Optionnel : Arrêter et supprimer le conteneur Docker
+docker stop yfinance-mcp
+docker rm yfinance-mcp
+```
+
+### Gestion des erreurs
+
+Le système inclut une gestion robuste des erreurs :
+
+1. **Vérification des prérequis** : Vérifie Docker, API keys, serveurs MCP avant chaque exécution
+2. **Health checks** : Attend que le serveur MCP soit prêt (timeout 30s)
+3. **Retry logic** : Redémarre le conteneur Docker s'il est arrêté
+4. **Notifications email** : Envoie un email via Gmail MCP en cas d'erreur
+5. **Logs détaillés** : Tous les logs sont sauvegardés avec timestamps
+
+**Exemple de notification d'erreur** :
+```
+Subject: [PEA Tracker] ❌ Erreur exécution Market Watcher
+
+Message: Le serveur MCP Yahoo Finance n'a pas répondu après 30s
+
+Log excerpt:
+[2026-01-24 08:00:15] [ERROR] Timeout: Le serveur n'a pas répondu
+[2026-01-24 08:00:15] [ERROR] Logs du conteneur: ...
+```
+
+### Notes importantes
+
+- ⚠️ **Docker doit être actif** : Le daemon Docker doit tourner pour que le serveur MCP fonctionne
+- ⚠️ **Pas d'exécution le weekend** : Les jobs launchd sont configurés pour Lundi-Vendredi uniquement
+- ⚠️ **Secrets dans .env** : Ne jamais commiter le fichier `config/.env` (déjà dans `.gitignore`)
+- ⚠️ **Logs rotatifs** : Pensez à nettoyer les logs anciens périodiquement
+- ✅ **Idempotence** : Les scripts peuvent être relancés plusieurs fois sans problème
+
 ## Structure du projet
 
 ```

@@ -30,16 +30,19 @@ Plateforme intelligente de gestion de portefeuille PEA composée de deux agents 
 ## Architecture
 
 ```
-Boursorama → Export Excel → Google Drive → n8n → Claude API → Gmail
+Boursorama → Export Excel → Google Drive ←→ Claude Agent (MCP) → Gmail
+                                             ↑
+                                    Yahoo Finance (Docker)
 ```
 
 ### Stack technique
 
-- **Stockage** : Google Drive + Google Sheets
-- **Orchestration** : n8n (workflows automatisés)
-- **Intelligence** : Claude API (Anthropic)
-- **Données** : Yahoo Finance API
-- **Notifications** : Gmail
+- **Stockage** : Google Drive (exports Boursorama, rapports)
+- **Exécution** : Claude Code CLI + launchd (macOS scheduler)
+- **Intelligence** : Claude API via agents autonomes
+- **Données** : Yahoo Finance MCP (conteneur Docker)
+- **Intégrations MCP** : Google Drive, Gmail, Yahoo Finance
+- **Notifications** : Gmail (via MCP)
 
 ## Structure du projet
 
@@ -85,63 +88,91 @@ pea-tracker/
 
 ### Prérequis
 
-- Compte Google (Drive + Gmail)
-- n8n installé (Docker ou npm)
-- Clé API Claude (Anthropic)
-- Accès Yahoo Finance API (gratuit)
+- **macOS** (pour launchd)
+- **Docker** (pour le serveur MCP Yahoo Finance)
+- **Claude Code CLI** : `npm install -g @anthropic-ai/claude-code`
+- **Clé API Claude** (Anthropic) : https://console.anthropic.com/
+- **Compte Google** (Drive + Gmail pour MCP)
+- **Python 3.11+**
 
 ### Étape 1 : Cloner le projet
 
 ```bash
-git clone <votre-repo>
+git clone https://github.com/yousmaaza/pea-tracker.git
 cd pea-tracker
 ```
 
-### Étape 2 : Configuration
+### Étape 2 : Construire l'image Docker MCP Yahoo Finance
 
 ```bash
-# Copier le fichier d'environnement
-cp config/.env.example config/.env
+# Cloner le repo MCP Yahoo Finance
+cd ..
+git clone https://github.com/Alex2Yang97/yahoo-finance-mcp.git
+cd yahoo-finance-mcp
 
-# Éditer avec vos clés API
+# Construire l'image Docker
+docker build -t yahoo-finance-mcp .
+
+# Retourner au projet
+cd ../pea-tracker
+```
+
+### Étape 3 : Configuration
+
+```bash
+# Copier le fichier template
+cp config/.env.template config/.env
+
+# Éditer avec vos vraies valeurs
 nano config/.env
 ```
 
-### Étape 3 : Installer n8n
-
-**Option Docker** :
+Configuration minimale requise dans `config/.env` :
 ```bash
-docker run -it --rm \
-  --name n8n \
-  -p 5678:5678 \
-  -v ~/.n8n:/home/node/.n8n \
-  n8nio/n8n
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
+YAHOO_FINANCE_MCP_PATH=/path/to/yahoo-finance-mcp
+EMAIL_RECIPIENT=votre@email.com
 ```
-
-**Option npm** :
-```bash
-npm install n8n -g
-n8n start
-```
-
-Accéder à : http://localhost:5678
 
 ### Étape 4 : Configurer Google Drive
 
-1. Créer la structure de dossiers :
+1. Créer la structure de dossiers dans Google Drive :
    ```
    PEA-Tracker/
-   ├── Imports/
-   ├── Data/
-   ├── Rapports/
-   └── Config/
+   ├── Imports/                    # Exports Boursorama
+   ├── Reports/
+   │   └── Signaux/               # Alertes Market Watcher
+   └── PEA_Watchlist_Indicateurs.xlsx  # Fichier principal
    ```
 
-2. Configurer les credentials n8n pour Google Drive et Gmail
+2. Configurer les MCP Google Drive et Gmail via Claude Code (suivre la documentation MCP)
 
-### Étape 5 : Importer les workflows n8n
+### Étape 5 : Tester l'installation
 
-Consulter [n8n/README.md](./n8n/README.md) pour instructions détaillées.
+```bash
+# Vérifier les prérequis
+./scripts/utils/check-prerequisites.sh
+
+# Tester le démarrage du serveur MCP
+./scripts/utils/start-yfinance-mcp.sh
+
+# Tester l'exécution complète
+./scripts/run-market-watcher.sh
+```
+
+### Étape 6 : Installer l'automatisation (optionnel)
+
+Pour activer l'exécution automatique 4x/jour :
+
+```bash
+# Copier les plists
+cp launchd/*.plist ~/Library/LaunchAgents/
+
+# Charger les jobs
+launchctl load ~/Library/LaunchAgents/com.pea-tracker.market-watcher-*.plist
+```
+
+Voir la section **Automatisation** ci-dessous pour plus de détails.
 
 ## Utilisation
 
@@ -203,6 +234,63 @@ Le workflow s'exécute le 1er de chaque mois à 9h :
 **Exécution manuelle** :
 Possible via l'interface n8n si besoin d'un rapport à la demande.
 
+## ⚙️ Automatisation
+
+Le système est désormais **100% automatisé** via **launchd** (scheduler macOS natif) et s'exécute **4 fois par jour** les jours de bourse.
+
+### Horaires d'exécution automatique
+
+- **07h00** : Avant ouverture des marchés
+- **12h00** : Mi-journée (suivi intraday)
+- **18h00** : Après clôture
+- **21h00** : Analyse fin de journée
+
+**Jours** : Lundi à Vendredi uniquement (pas de weekends)
+
+### Installation rapide
+
+```bash
+# 1. Construire l'image Docker MCP Yahoo Finance
+cd /path/to/yahoo-finance-mcp
+docker build -t yahoo-finance-mcp .
+
+# 2. Configurer les variables d'environnement
+cp config/.env.template config/.env
+# Éditer config/.env avec vos clés API
+
+# 3. Tester manuellement
+./scripts/run-market-watcher.sh
+
+# 4. Installer les jobs launchd
+cp launchd/*.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.pea-tracker.market-watcher-*.plist
+```
+
+### Vérifier que tout fonctionne
+
+```bash
+# Lister les jobs actifs
+launchctl list | grep pea-tracker
+
+# Consulter les logs
+tail -f logs/market-watcher/market-watcher-*.log
+
+# Vérifier le conteneur Docker
+docker ps | grep yfinance-mcp
+```
+
+### Composants
+
+- **Wrapper principal** : `scripts/run-market-watcher.sh`
+- **Gestion Docker MCP** : `scripts/utils/start-yfinance-mcp.sh` et `stop-yfinance-mcp.sh`
+- **Vérifications** : `scripts/utils/check-prerequisites.sh`
+- **Notifications erreurs** : `scripts/utils/send-error-notification.sh` (via Gmail MCP)
+- **Jobs launchd** : 4 plists dans `launchd/` (un par horaire)
+
+### Documentation complète
+
+Pour plus de détails sur l'automatisation (architecture, configuration, troubleshooting), consultez la section **"Automatisation via launchd"** dans [CLAUDE.md](./CLAUDE.md).
+
 ## Configuration avancée
 
 ### Seuils d'alertes
@@ -241,12 +329,14 @@ Possible via l'interface n8n si besoin d'un rapport à la demande.
 
 | Service | Coût mensuel |
 |---------|--------------|
-| Google Workspace | Gratuit |
-| n8n (self-hosted) | 0€ |
-| n8n (cloud) | 0-20€ |
+| Google Workspace (Drive + Gmail) | Gratuit |
+| Docker (local) | Gratuit |
 | Claude API | 5-20€ |
-| Yahoo Finance | Gratuit |
-| **Total** | **5-40€/mois** |
+| Yahoo Finance (via MCP) | Gratuit |
+| Claude Code CLI | Gratuit |
+| **Total** | **5-20€/mois** |
+
+**Architecture ultra-légère** : Aucun serveur à héberger, aucune infrastructure à maintenir.
 
 ## Développement
 
@@ -360,8 +450,8 @@ Cet outil ne remplace pas l'analyse et le jugement humain. Toujours effectuer vo
 
 ---
 
-**Version** : 1.0.0
-**Dernière mise à jour** : 2026-01-07
-**Statut** : En développement
+**Version** : 2.0.0
+**Dernière mise à jour** : 2026-01-24
+**Statut** : Agent Market Watcher opérationnel + Automatisation launchd déployée
 
 Créé avec Claude Code
