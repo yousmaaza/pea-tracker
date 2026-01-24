@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 # stop-yfinance-mcp.sh
-# Arrête proprement le serveur MCP Yahoo Finance s'il a été démarré par nos scripts
+# Arrête proprement le serveur MCP Yahoo Finance (Docker)
 #
 # Exit codes:
-#   0 - Serveur arrêté ou n'était pas actif
+#   0 - Serveur arrêté avec succès ou déjà arrêté
 #   1 - Erreur lors de l'arrêt
 
 set -euo pipefail
@@ -16,8 +16,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-PID_FILE="/tmp/pea-tracker-yfinance-mcp.pid"
-SIGTERM_WAIT=5  # Secondes d'attente avant SIGKILL
+DOCKER_CONTAINER_NAME="yfinance-mcp"
+STOP_TIMEOUT=10  # Timeout pour docker stop (secondes)
 
 # Fonction de logging
 log_info() {
@@ -32,59 +32,50 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Vérifier si le fichier PID existe
-if [ ! -f "$PID_FILE" ]; then
-    log_info "Aucun PID enregistré - serveur MCP non démarré par nos scripts"
+# Vérifier si Docker est disponible
+if ! command -v docker &> /dev/null; then
+    log_warn "Docker n'est pas installé, rien à arrêter"
     exit 0
 fi
 
-# Lire le PID
-SERVER_PID=$(cat "$PID_FILE")
-log_info "PID trouvé: $SERVER_PID"
-
-# Vérifier si le processus existe
-if ! ps -p $SERVER_PID > /dev/null 2>&1; then
-    log_warn "Le processus PID $SERVER_PID n'est plus actif"
-    rm -f "$PID_FILE"
-    log_info "Fichier PID nettoyé"
+# Vérifier si le daemon Docker est actif
+if ! docker info &> /dev/null; then
+    log_warn "Docker daemon n'est pas actif, rien à arrêter"
     exit 0
 fi
 
-# Arrêt gracieux avec SIGTERM
-log_info "Envoi de SIGTERM au processus $SERVER_PID..."
-kill -TERM $SERVER_PID 2>/dev/null
+# Vérifier si le conteneur existe
+log_info "Recherche du conteneur ${DOCKER_CONTAINER_NAME}..."
 
-# Attendre que le processus se termine
-log_info "Attente de l'arrêt du processus (max ${SIGTERM_WAIT}s)..."
-ELAPSED=0
-while ps -p $SERVER_PID > /dev/null 2>&1; do
-    if [ $ELAPSED -ge $SIGTERM_WAIT ]; then
-        log_warn "Le processus ne s'est pas arrêté après ${SIGTERM_WAIT}s"
-        log_warn "Envoi de SIGKILL..."
-        kill -KILL $SERVER_PID 2>/dev/null || true
-        sleep 1
-        break
+if ! docker ps -a --filter "name=${DOCKER_CONTAINER_NAME}" --format "{{.Names}}" | grep -q "${DOCKER_CONTAINER_NAME}"; then
+    log_info "Conteneur ${DOCKER_CONTAINER_NAME} non trouvé (déjà supprimé ou jamais créé)"
+    exit 0
+fi
+
+# Vérifier si le conteneur est en cours d'exécution
+if docker ps --filter "name=${DOCKER_CONTAINER_NAME}" --format "{{.Names}}" | grep -q "${DOCKER_CONTAINER_NAME}"; then
+    log_info "Arrêt du conteneur ${DOCKER_CONTAINER_NAME}..."
+
+    # Arrêter le conteneur avec timeout
+    if docker stop --time=${STOP_TIMEOUT} "${DOCKER_CONTAINER_NAME}" > /dev/null 2>&1; then
+        log_info "✓ Conteneur arrêté proprement"
+    else
+        log_error "Échec de l'arrêt du conteneur"
+        log_error "Tentative de force kill..."
+
+        if docker kill "${DOCKER_CONTAINER_NAME}" > /dev/null 2>&1; then
+            log_warn "⚠ Conteneur tué (force kill)"
+        else
+            log_error "Impossible d'arrêter le conteneur"
+            exit 1
+        fi
     fi
-
-    sleep 1
-    ELAPSED=$((ELAPSED + 1))
-done
-
-# Vérifier que le processus est bien arrêté
-if ps -p $SERVER_PID > /dev/null 2>&1; then
-    log_error "Impossible d'arrêter le processus $SERVER_PID"
-    exit 1
+else
+    log_info "Conteneur ${DOCKER_CONTAINER_NAME} déjà arrêté"
 fi
 
-# Cleanup du fichier PID
-rm -f "$PID_FILE"
-log_info "✓ Serveur MCP Yahoo Finance arrêté proprement"
+# Note: On ne supprime PAS le conteneur pour pouvoir le redémarrer facilement
+# Si vous voulez le supprimer : docker rm ${DOCKER_CONTAINER_NAME}
 
-# Cleanup optionnel du log temporaire
-MCP_LOG="/tmp/pea-tracker-yfinance-mcp.log"
-if [ -f "$MCP_LOG" ]; then
-    rm -f "$MCP_LOG"
-    log_info "Log temporaire nettoyé"
-fi
-
+log_info "✓ Arrêt terminé"
 exit 0

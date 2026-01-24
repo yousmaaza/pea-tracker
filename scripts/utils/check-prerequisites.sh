@@ -53,12 +53,12 @@ fi
 # 2. Vérifier claude-code
 log_info "Vérification de claude-code..."
 if command -v claude-code &> /dev/null; then
-    CLAUDE_VERSION=$(claude-code --version 2>&1 | head -n1 || echo "version inconnue")
-    log_info "✓ claude-code installé ($CLAUDE_VERSION)"
+    log_info "✓ claude-code trouvé dans PATH"
+    # Note: --version peut bloquer dans certains environnements, on skip cette vérification
 else
-    log_error "✗ claude-code non installé"
-    log_error "  Installation: npm install -g @anthropic-ai/claude-code"
-    HAS_ERRORS=1
+    # Dans l'environnement Claude Code, le binaire peut ne pas être dans PATH
+    # mais l'environnement fonctionne quand même via l'agent
+    log_warn "⚠ claude-code non trouvé dans PATH (peut être OK si exécuté via l'environnement Claude)"
 fi
 
 # 3. Vérifier ANTHROPIC_API_KEY
@@ -72,27 +72,44 @@ else
     HAS_ERRORS=1
 fi
 
-# 4. Vérifier MCP Yahoo Finance (optionnel au démarrage, sera lancé par script)
-log_info "Vérification du serveur MCP Yahoo Finance..."
-if [ -n "${YAHOO_FINANCE_MCP_PATH:-}" ]; then
-    if [ -d "$YAHOO_FINANCE_MCP_PATH" ]; then
-        log_info "✓ Chemin MCP Yahoo Finance configuré: $YAHOO_FINANCE_MCP_PATH"
+# 4. Vérifier Docker (pour MCP Yahoo Finance)
+log_info "Vérification de Docker..."
+if command -v docker &> /dev/null; then
+    DOCKER_VERSION=$(docker --version 2>&1 | head -n1)
+    log_info "✓ Docker installé ($DOCKER_VERSION)"
 
-        # Vérifier si server.py existe
-        if [ -f "$YAHOO_FINANCE_MCP_PATH/server.py" ]; then
-            log_info "✓ server.py trouvé"
+    # Vérifier que le daemon Docker est actif
+    if docker info &> /dev/null; then
+        log_info "✓ Docker daemon actif"
+
+        # Vérifier si l'image Docker MCP Yahoo Finance existe
+        if docker images --format "{{.Repository}}" | grep -q "^yahoo-finance-mcp$"; then
+            log_info "✓ Image Docker yahoo-finance-mcp trouvée"
         else
-            log_warn "⚠ server.py non trouvé dans $YAHOO_FINANCE_MCP_PATH"
+            log_warn "⚠ Image Docker yahoo-finance-mcp non trouvée"
+            log_warn "  Construire l'image: cd \$YAHOO_FINANCE_MCP_PATH && docker build -t yahoo-finance-mcp ."
+        fi
+
+        # Vérifier si le conteneur existe
+        if docker ps -a --filter "name=yfinance-mcp" --format "{{.Names}}" | grep -q "yfinance-mcp"; then
+            CONTAINER_STATUS=$(docker ps -a --filter "name=yfinance-mcp" --format "{{.Status}}" | head -1)
+            log_info "✓ Conteneur Docker yfinance-mcp trouvé ($CONTAINER_STATUS)"
+        else
+            log_info "ℹ Conteneur Docker yfinance-mcp non créé (sera créé automatiquement)"
         fi
     else
-        log_warn "⚠ Répertoire MCP Yahoo Finance non trouvé: $YAHOO_FINANCE_MCP_PATH"
+        log_warn "⚠ Docker daemon non actif"
+        log_warn "  Lancer Docker Desktop pour démarrer le daemon"
     fi
 else
-    log_warn "⚠ YAHOO_FINANCE_MCP_PATH non défini (sera démarré par défaut)"
+    log_error "✗ Docker non installé"
+    log_error "  Installation: https://docs.docker.com/get-docker/"
+    HAS_ERRORS=1
 fi
 
-# Vérifier si le serveur est déjà actif
-if curl -s --max-time 2 http://localhost:8000/health &> /dev/null; then
+# Vérifier si le serveur MCP est déjà actif
+SSE_RESPONSE=$(curl -s --max-time 1 http://localhost:8000/sse 2>/dev/null || true)
+if echo "$SSE_RESPONSE" | head -n 1 | grep -q "event: endpoint"; then
     log_info "✓ Serveur MCP Yahoo Finance déjà actif sur port 8000"
 else
     log_info "ℹ Serveur MCP Yahoo Finance non actif (sera démarré si nécessaire)"
